@@ -1,0 +1,35 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  CI: 'true'
+  NX_DAEMON: 'true'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  issues: write
+  statuses: write
+  checks: write
+  contents: write
+  actions: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/init-monorepo
+      - name: Build
+        run: pnpm nx run-many --target build --all --output-style=stream
+      - name: Check for mutations
+        run: git diff --ignore-space-at-eol --exit-code

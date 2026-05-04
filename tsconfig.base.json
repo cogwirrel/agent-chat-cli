@@ -16,6 +16,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@agent-chat-cli/source"]
+    "customConditions": ["@agent-chat-cli/source"],
+    "rootDir": ".",
+    "paths": {
+      ":agent-chat-cli/agent-chat-cli": [
+        "./packages/agent-chat-cli/src/index.ts"
+      ]
+    }
   }
 }
