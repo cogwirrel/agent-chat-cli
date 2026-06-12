@@ -5,6 +5,8 @@
 import { ClientFactory } from '@a2a-js/sdk/client';
 import type { ChatAdapter, ChatAdapterConfig } from '../types.js';
 
+type A2AClientFactory = InstanceType<typeof ClientFactory>;
+
 /** Minimal shape of a text part in an A2A event. */
 interface A2ATextPart {
   kind: 'text';
@@ -42,10 +44,14 @@ export class A2AChatAdapter implements ChatAdapter {
   >;
   private agentName = 'Agent';
   private contextId: string | undefined;
+  private clientFactory: A2AClientFactory;
+
+  constructor(options?: { clientFactory?: A2AClientFactory }) {
+    this.clientFactory = options?.clientFactory ?? new ClientFactory();
+  }
 
   async connect(url: string): Promise<ChatAdapterConfig> {
-    const factory = new ClientFactory();
-    this.client = await factory.createFromUrl(url);
+    this.client = await this.clientFactory.createFromUrl(url);
     const card = await this.client.getAgentCard();
     this.agentName =
       ((card as unknown as Record<string, unknown>).name as string) ?? 'Agent';

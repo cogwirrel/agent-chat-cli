@@ -61,10 +61,17 @@ class AsyncQueue<T> {
 
 import type { Message } from '@ag-ui/client';
 
+type FetchFn = (url: string, init: RequestInit) => Promise<Response>;
+
 export class AGUIChatAdapter implements ChatAdapter {
   private agentUrl = '';
   private messages: Message[] = [];
   private threadId = crypto.randomUUID();
+  private fetchFn: FetchFn | undefined;
+
+  constructor(options?: { fetch?: FetchFn }) {
+    this.fetchFn = options?.fetch;
+  }
 
   async connect(url: string): Promise<ChatAdapterConfig> {
     this.agentUrl = url;
@@ -89,6 +96,7 @@ export class AGUIChatAdapter implements ChatAdapter {
       url: this.agentUrl,
       threadId: this.threadId,
       initialMessages: [...this.messages],
+      ...(this.fetchFn ? { fetch: this.fetchFn } : {}),
     });
 
     // Fire and forget — the subscriber callbacks push to the queue
